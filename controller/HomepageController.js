@@ -1,5 +1,5 @@
 const model = require("../model/HomepageModel");
-
+const fs = require("fs");
 // GET: Homepage Data
 const gethomepagedata = async (req, res) => {
   try {
@@ -16,43 +16,69 @@ const gethomepagedata = async (req, res) => {
 
 // POST: Set Homepage Data
 const sethomepagedata = async (req, res) => {
-  try {
-    const {
-      projectdonecount,
-      ongoingprojectcount,
-      activeprojectcount,
-      aboutus,
-      project
-    } = req.body;
+    try {
+      const {
+        projectdonecount,
+        ongoingprojectcount,
+        activeprojectcount,
+        aboutus,
+        project
+      } = req.body;
+  
+      const uploadedImages = req.files?.map(file => file.path); // ["uploads/homepage/xxx.png"]
+  
+      const aboutData = typeof aboutus === 'string' ? JSON.parse(aboutus) : aboutus;
+      let projectArray = typeof project === 'string' ? JSON.parse(project) : project;
+  
+      // ✅ Convert file paths to full URLs
+      if (projectArray && uploadedImages && projectArray.length === uploadedImages.length) {
+        projectArray = projectArray.map((item, index) => ({
+          ...item,
+          image: `${req.protocol}://${req.get('host')}/${uploadedImages[index].replace(/\\/g, '/')}`
+        }));
+      }
+  const tempdata = await model.findOne({});
+  tempdata.project.map((e)=>{
+    if(e.image){
+      const oldPath = `./${e.image}`;
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+    }
+  })
 
-    const data = await model.findOneAndUpdate({},{
-      projectdonecount,
-      ongoingprojectcount,
-      activeprojectcount,
-      aboutus,
-      project
-    },{
-      new: true, // return the updated document
-      runValidators: true  ,// run schema validation
-      upsert: true
-    });
-
-    return res.status(201).json({
-      success: true,
-      message: "Homepage data saved successfully",
-      data
-    });
-  } catch (e) {
-    console.error(e);
-    return res.status(500).json({
-      success: false,
-      message: "Server Error",
-      error: e.message
-    });
-  }
-};
- 
-
-
+  
+      const data = await model.findOneAndUpdate(
+        {},
+        {
+          projectdonecount,
+          happyclientcount: ongoingprojectcount,
+          employeecount: activeprojectcount,
+          aboutus: aboutData,
+          project: projectArray
+        },
+        {
+          new: true,
+          runValidators: true,
+          upsert: true
+        }
+      );
+  
+      return res.status(201).json({
+        success: true,
+        message: "Homepage data with project image URLs saved successfully",
+        data
+      });
+  
+    } catch (e) {
+      console.error(e);
+      return res.status(500).json({
+        success: false,
+        message: "Server Error",
+        error: e.message
+      });
+    }
+  };
+  
 
 module.exports = { gethomepagedata, sethomepagedata,  };
