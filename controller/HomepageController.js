@@ -37,15 +37,28 @@ const sethomepagedata = async (req, res) => {
           image: `${req.protocol}://${req.get('host')}/${uploadedImages[index].replace(/\\/g, '/')}`
         }));
       }
-  const tempdata = await model.findOne({});
-  tempdata.project.map((e)=>{
-    if(e.image){
-      const oldPath = `./${e.image}`;
-      if (fs.existsSync(oldPath)) {
-        fs.unlinkSync(oldPath);
+      
+         const tempdata = await model.findOne({});
+       tempdata.project.map((e)=>{
+      if(e.image){
+      const oldPath = `${e.image}`;
+      
+      const imageName = `uploads/homepage/${oldPath.split('/').pop()}`;
+       
+      if (fs.existsSync(imageName)) {
+         console.log(fs.existsSync(imageName))
+         try{
+          fs.unlinkSync(imageName);
+         }catch(e){
+          console.log(e);
+         }
+          
+        
       }
     }
-  })
+  }) 
+       
+ 
 
   
       const data = await model.findOneAndUpdate(
