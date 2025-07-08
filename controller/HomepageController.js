@@ -19,8 +19,8 @@ const sethomepagedata = async (req, res) => {
     try {
       const {
         projectdonecount,
-        ongoingprojectcount,
-        activeprojectcount,
+        happyclientcount,
+        employeecount,
         aboutus,
         project
       } = req.body;
@@ -29,7 +29,7 @@ const sethomepagedata = async (req, res) => {
   
       const aboutData = typeof aboutus === 'string' ? JSON.parse(aboutus) : aboutus;
       let projectArray = typeof project === 'string' ? JSON.parse(project) : project;
-  
+      
       // ✅ Convert file paths to full URLs
       if (projectArray && uploadedImages && projectArray.length === uploadedImages.length) {
         projectArray = projectArray.map((item, index) => ({
@@ -37,26 +37,32 @@ const sethomepagedata = async (req, res) => {
           image: `${req.protocol}://${req.get('host')}/${uploadedImages[index].replace(/\\/g, '/')}`
         }));
       }
-      
+      try {
          const tempdata = await model.findOne({});
-       tempdata.project.map((e)=>{
+       tempdata?.project?.map((e)=>{
       if(e.image){
       const oldPath = `${e.image}`;
       
       const imageName = `uploads/homepage/${oldPath.split('/').pop()}`;
-       
+       try {
       if (fs.existsSync(imageName)) {
-         console.log(fs.existsSync(imageName))
-         try{
-          fs.unlinkSync(imageName);
-         }catch(e){
-          console.log(e);
-         }
-          
         
-      }
+           fs.unlinkSync(imageName);
+       
+          }
+          } catch (error) {
+           console.log( error)
+        }
+         
+         
+        
+     
     }
-  }) 
+  })
+      } catch (error) {
+        console.log(error);
+      }
+         
        
  
 
@@ -65,8 +71,8 @@ const sethomepagedata = async (req, res) => {
         {},
         {
           projectdonecount,
-          happyclientcount: ongoingprojectcount,
-          employeecount: activeprojectcount,
+          happyclientcount: happyclientcount,
+          employeecount: employeecount,
           aboutus: aboutData,
           project: projectArray
         },
