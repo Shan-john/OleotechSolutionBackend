@@ -4,25 +4,25 @@ const mongoose = require("mongoose");
 const projectSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true,
+   
   },
   category: {
     type: String,
-    required: true,
+   
   },
   image: {
     type: String,
-    required: true,
+   
   },
 });
 const aboutschema =new mongoose.Schema({
   details:{
     type: String,
-    required: true,
+    
   },
   fulldetail:{
     type: String,
-    required: true,
+    
   }
 })
 
@@ -30,15 +30,15 @@ const aboutschema =new mongoose.Schema({
 const oleotechHomeSchema = new mongoose.Schema({
   projectdonecount: {
     type: String,
-    required: true,
+   
   },
   happyclientcount: {
     type: Number,
-    required: true,
+   
   },
   employeecount: {
     type: Number,
-    required: true,
+   
   },
   aboutus:  
     aboutschema

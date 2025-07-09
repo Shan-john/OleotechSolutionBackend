@@ -3,11 +3,11 @@ const mongoose = require("mongoose");
 const Servicedata = new mongoose.Schema({
     heading: {
         type: String,
-        required: true,
+         
       },
       description: {
         type: String,
-        required: true,
+        
       },
 })
  
